@@ -11,7 +11,6 @@ app.use("/static", express.static("public"))
 // add data from form to body prop of request!
 app.use(express.urlencoded({ extended: true }));
 
-
 // connection to db using mongoose
 mongoose.connect(process.env.DB_CONNECT, { useNewUrlParser: true }, () => {
     console.log("Connected to db!");
@@ -21,6 +20,8 @@ mongoose.connect(process.env.DB_CONNECT, { useNewUrlParser: true }, () => {
 app.set("view engine", "ejs");
 
 // #Routing - GET and POST requests differentiated here for each url path, e.g. '/' or '/edit' to carry out corresponding functionality.
+// #Response - Seems like there is a response object with its own methods that can be used to respond with different response codes or
+// control other type of response behavior like rendering or redirecting. (As opposed to Flask where no such object is used)
 app.get('/',(req, res) => {
     TodoTask.find({}, (err, tasks) => {
         res.render("todo.ejs", { todoTasks: tasks });
@@ -35,6 +36,7 @@ app.post('/', async (req, res) => {
     });
     try {
         // saving task to db, rerender page to display
+        // #Async Programming - Waiting for the new todo to save before rerendering.
         await todoTask.save();
         res.redirect("/");
     } catch (err) {
